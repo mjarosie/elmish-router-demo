@@ -42,9 +42,7 @@ Let's look at both of these in detail.
 
 ### Parser
 
-The first parameter of `Program.toNavigable` is a `parser` function. In brief: **it's invoked when the URL changes or the page is initially loaded**, and its responsibility is to map between URLs and different routes (defined by the programmer).
-
-The developer is required to implement only the `route` function which is fed into the `parseHash` function (I'll add more about that later).
+The first parameter of `Program.toNavigable` is a `parser` function. In brief: **it's invoked when the page is initially loaded and when the URL changes**, and its responsibility is simply to map between URLs and application sub-pages (defined by the programmer).
 
 The type of `parser` (defined in `Elmish.Navigation` module) is `Parser<'a>` where:
 
@@ -52,7 +50,7 @@ The type of `parser` (defined in `Elmish.Navigation` module) is `Parser<'a>` whe
 type Parser<'a> = Location -> 'a
 ```
 
-You can think of `Location` as the URL in your browser. What's the `'a` type? This will be the `Optional` of the type that needs to be defined by the programmer. Say I want to have an application which shows me a text input field when the user visits `/text` subpage, and shows me a counter when `/counter` is visited.
+You can think of `Location` as the URL in your browser. What's the `'a` type? This will be the `Optional` of the type that needs to be defined by the developer and which describes all possible routes that the application can take. Say I want to have an application which shows me a text input field when the user visits `/text` subpage, and shows me a counter when `/counter` is visited.
 
 I'll define the following type:
 
@@ -62,13 +60,13 @@ type Route =
     | TextInput
 ```
 
-Hence, the type of the first parameter to `Program.toNavigable` becomes of type `Parser<Option<Route>>` (which, as I've shown above, translates to `Location -> Option<Route>` - so what it's basically doing is translating the URL address in your browser to one of the values of your predefined type, or `None` if the mapping isn't possible)!
+Hence, the type of the first parameter to `Program.toNavigable` becomes of type `Parser<Option<Route>>` (which, as I've shown above, translates to `Location -> Option<Route>` - so what it's basically doing is translating the URL address in your browser to one of the values of your predefined type, or `None` if the mapping isn't possible).
 
-To repeat what we just went throught: you can think of a `parser` as a function which takes a URL address and produces an (optional) single value of a type defined by you.
+To repeat what we just went throught: you can think of a `parser` as a function which takes a URL address and produces an optional single value representing the application route, defined by you!
 
-How do you define function of type `Parser<Option<Route>>`, you might ask yourself. This is where things get confusing, so bear with me.
+How do you define function of type `Parser<Option<Route>>`, you might ask. This is where things get confusing, so bear with me.
 
-The naive implementation of a function having that type would look like something along these lines:
+The naïve implementation of a function having that type would look like something along these lines:
 
 ```f#
 // Pseudocode
@@ -95,12 +93,12 @@ Extracting the `urlPart` bit might be cumbersome. Also - what happens when you h
 
 That's where the [Elmish.UrlParser](https://elmish.github.io/browser/parser.html) module steps in.
 
-First - it defines two "URL helper" functions which take a function defined by you and result in the function of type `Parser<'a>` (so the one which picks an optional `Route` based on the URL). As the ["routing tutorial"](https://elmish.github.io/browser/routing.html#Working-with-full-HTML5-and-hash-based-URLs) mentions, we've got [two functions](https://elmish.github.io/browser/parser.html#Parsers) to choose from:
+First - it defines two "URL helper" functions which take a function (defined by you) and result in the function of type `Parser<'a>` (so the one which returns an optional `Route` based on the URL). As the ["routing tutorial"](https://elmish.github.io/browser/routing.html#Working-with-full-HTML5-and-hash-based-URLs) mentions, we've got [two functions](https://elmish.github.io/browser/parser.html#Parsers) to choose from:
 
 - parsePath
 - parseHash
 
-They differ between which part of the URL is fed into your actual parser (remember the `urlPart` variable extracted in the pseudocode above?).
+They differ between which part of the URL is fed into your actual parser (remember the `urlPart` bit extracted in the pseudocode above?).
 
 Looking at type definitions of these functions (using "Haskellish" type notation) we can see that they take a value of type `Parser<_,_>`, a `Location` and return an optional value:
 
@@ -125,7 +123,7 @@ type State<'v> =
     value : 'v }
 ```
 
-Another functionality that `parser` module defines is "placeholder" functions which handle different URL parameters, both variable and constant:
+Another functionality that `parser` module defines are "placeholder" functions which handle different URL parameters, both variable and constant:
 
 Quoting the [documentation](https://elmish.github.io/browser/routing.html#Parsing-routes), we've got:
 
