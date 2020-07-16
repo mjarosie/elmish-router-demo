@@ -1,12 +1,13 @@
 # Elmish router demo
 
-This repository contains two applications with exactly the same functionality: showing a counter (which can be decreased, increased or increased after a delay) or a text field (of which the content is shown below it). It was inspired by the content of [The Elmish Book](https://zaid-ajaj.github.io/the-elmish-book/#/chapters/scaling/splitting-programs). I've decided not to split modules into files not to overcomplicate things.
+This repository contains two single-page applications with exactly the same functionality: showing a counter (which can be decreased, increased or increased after a delay) or a text field (of which the content is shown below it). It was inspired by the content of [The Elmish Book](https://zaid-ajaj.github.io/the-elmish-book/#/chapters/scaling/splitting-programs). I've decided not to split modules into files not to overcomplicate things.
+
+The focus of this simple application is to show the ability to react to the URL changes by modifying the application's state.
+For example - when you run the application (run `npm install && npm start` in either of two directories), go to <http://localhost:8080/#/counter> and click "Show Text Input" button - the URL should change to <http://localhost:8080/#/text>.
+Also - when you change `text` to `counter` in the URL manually - the application should go back to the previous screen.
+This functionality makes it more user-friendly to reach the exact "sub-page" in your SPA that the user wants to reach (for instance when saving the link for later or when sharing it with other users).
 
 ## Routing
-
-The focus of this simple application is ability to react to the change in application's model with the change of the URL in the browser. For example - when you run the application (run `npm install && npm start` in either of two directories), go to [http://localhost:8080/#/counter] and click "Show Text Input" button - the URL should change to [http://localhost:8080/#/text]. This functionality makes it more user-friendly to reach the exact page in your SPA that the user wants to reach (for instance when saving the link for later or when sharing it with other users).
-
-## What does what
 
 [The documentation](https://elmish.github.io/browser/index.html) doesn't make it obvious how exactly does the routing work. There are two modules of the library that routing depends on:
 
@@ -16,7 +17,16 @@ The focus of this simple application is ability to react to the change in applic
 The [routing tutorial](https://elmish.github.io/browser/routing.html) goes into much details of how to parse routes without explaining the general idea behind it in the first place. To make your app "navigable" you need to change the chain of calls that lead to `Program.run`:
 
 ```f#
-open Elmish.Navigation // <- You need to import Navigation in order to leverage routing as that's where `Program.toNavigable` is defined.
+// Pseudocode
+
+// You need to import Navigation in order to leverage routing as that's where `Program.toNavigable` is defined.
+open Elmish.Navigation
+
+let route =
+    ...
+
+let urlUpdate =
+    ...
 
 Program.mkProgram init update view
 |> Program.toNavigable (parseHash route) urlUpdate  // <- That's the additional line.
